@@ -519,18 +519,27 @@ let projects = [];
 let currentImageData = '';
 let confirmingDelete = null;
 
-/* ── SHARED STORAGE ── */
+/* ── JSONBIN STORAGE ── */
+const BIN_ID = '69db5362aaba882197ed7895';
+const API_KEY = '$2a$10$.GuCzu/wFVoUaM/7RRX1CehJ57wPYpyvta1tpzeT1IFCepqsAOLTW';
+const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
 async function saveProjects() {
   try {
-    await window.storage.set('projects', JSON.stringify(projects), true);
+    await fetch(BIN_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+      body: JSON.stringify(projects)
+    });
   } catch(e) { console.error('Save failed:', e); }
 }
 async function loadProjects() {
   try {
-    const result = await window.storage.get('projects', true);
-    if (result && result.value) {
-      projects = JSON.parse(result.value);
-    }
+    const res = await fetch(`${BIN_URL}/latest`, {
+      headers: { 'X-Master-Key': API_KEY }
+    });
+    const data = await res.json();
+    projects = Array.isArray(data.record) ? data.record : [];
   } catch(e) {
     projects = [];
   }
