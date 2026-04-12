@@ -539,7 +539,8 @@ async function loadProjects() {
       headers: { 'X-Master-Key': API_KEY }
     });
     const data = await res.json();
-    projects = Array.isArray(data.record) ? data.record : [];
+    projects = Array.isArray(data.record) ? data.record.filter(p => p && typeof p === 'object' && p.name) : [];
+    await saveProjects();
   } catch(e) {
     projects = [];
   }
