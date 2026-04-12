@@ -617,7 +617,7 @@ function addProject() {
   const tag   = document.getElementById('newTag').value;
   const desc  = document.getElementById('newDesc').value.trim();
   const asset = document.getElementById('newAsset').value.trim();
-  if (!name || !desc) {
+  if (!name) {
     const btn = document.querySelector('.save-btn');
     btn.style.background = '#FF4444'; btn.style.color = '#fff';
     setTimeout(() => { btn.style.background = ''; btn.style.color = ''; }, 500);
@@ -722,7 +722,8 @@ function renderGrid() {
       <div class="proj-name">${p.name}</div>
       <div class="proj-desc">${p.desc}</div>
       <div class="proj-footer">
-        <span class="lang-pill"><span class="ldot"></span><span class="lang-txt">UI · UX</span></span>
+        <span class="lang-pill"><span class="ldot"></span><span class="lang-txt">Luau · UI</span></span>
+        <span class="view-src">View source →</span>
       </div>`;
     grid.appendChild(card);
     setTimeout(() => {
