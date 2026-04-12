@@ -631,7 +631,7 @@ function addProject() {
 }
 
 /* ── DELETE PROJECT ── */
-function deleteProject(id) {
+async function deleteProject(id) {
   if (confirmingDelete !== id) {
     confirmingDelete = id;
     const btn = document.querySelector(`.del-btn[data-id="${id}"]`);
@@ -640,12 +640,14 @@ function deleteProject(id) {
     return;
   }
   confirmingDelete = null;
+  projects = projects.filter(p => p.id !== id);
+  await saveProjects();
   const row = document.querySelector(`.saved-row[data-row-id="${id}"]`);
   if (row) {
     row.classList.add('row-deleting');
-    setTimeout(() => { projects = projects.filter(p => p.id !== id); saveProjects(); refreshDash(); renderGrid(); }, 250);
+    setTimeout(() => { refreshDash(); renderGrid(); }, 250);
   } else {
-    projects = projects.filter(p => p.id !== id); saveProjects(); refreshDash(); renderGrid();
+    refreshDash(); renderGrid();
   }
 }
 
