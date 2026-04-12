@@ -614,7 +614,22 @@ function handleFileSelect(e) {
 function loadImageFile(file) {
   if (!file.type.startsWith('image/')) return;
   const reader = new FileReader();
-  reader.onload = (e) => { setPreviewImage(e.target.result); document.getElementById('newAsset').value = ''; };
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 400;
+      let w = img.width, h = img.height;
+      if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      else if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.7);
+      setPreviewImage(compressed);
+      document.getElementById('newAsset').value = '';
+    };
+    img.src = e.target.result;
+  };
   reader.readAsDataURL(file);
 }
 function setPreviewImage(src) {
@@ -753,7 +768,7 @@ function renderGrid() {
       <div class="proj-name">${p.name}</div>
       <div class="proj-desc">${p.desc}</div>
       <div class="proj-footer">
-        <span class="lang-pill"><span class="ldot"></span><span class="lang-txt">UI · UX</span></span>
+        <span class="lang-pill"><span class="ldot"></span><span class="lang-txt">Luau · UI</span></span>
         <span class="view-src" onclick="openLightbox(${i})">View source →</span>
       </div>`;
     grid.appendChild(card);
