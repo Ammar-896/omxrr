@@ -84,6 +84,7 @@ nav{
   animation:blink 2s ease-in-out infinite;
 }
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .hero-title{
   font-size:clamp(40px,6vw,72px);
   font-weight:800;line-height:1.0;
@@ -405,15 +406,7 @@ nav{
 
   <div class="section">
     <div class="sec-label">PROJECTS &nbsp;<span class="sec-count" id="totalLabel">0 total</span></div>
-    <div id="projContainer">
-      <div class="empty-state">
-        <div class="empty-icon">
-          <svg viewBox="0 0 24 24"><path d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        </div>
-        <div class="empty-title">No projects yet</div>
-        <div class="empty-sub">Projects will appear here once added</div>
-      </div>
-    </div>
+    <div id="projContainer"><div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" style="animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="var(--muted)" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div><div class="empty-title" style="color:#333">Loading...</div></div></div>
   </div>
 </div>
 
@@ -534,17 +527,19 @@ async function saveProjects() {
   } catch(e) { console.error('Save failed:', e); }
 }
 async function loadProjects() {
-  try {
-    const res = await fetch(`${BIN_URL}/latest`, {
-      headers: { 'X-Master-Key': API_KEY }
-    });
-    const data = await res.json();
-    projects = Array.isArray(data.record) ? data.record.filter(p => p && typeof p === 'object' && p.name) : [];
-    await saveProjects();
-  } catch(e) {
-    projects = [];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch(`${BIN_URL}/latest`, { headers: { 'X-Master-Key': API_KEY } });
+      if (!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      projects = Array.isArray(data.record) ? data.record.filter(p => p && typeof p === 'object' && p.name) : [];
+      renderGrid();
+      return;
+    } catch(e) {
+      if (attempt === 2) { projects = []; renderGrid(); }
+      else await new Promise(r => setTimeout(r, 800));
+    }
   }
-  renderGrid();
 }
 loadProjects();
 
