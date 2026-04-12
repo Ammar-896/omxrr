@@ -310,6 +310,44 @@ nav{
 .rm-btn:hover{background:#1a0808}
 .no-saved{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);text-align:center;padding:20px 0}
 
+/* IMAGE UPLOAD */
+.img-upload-area{
+  position:relative;width:100%;border:1px dashed var(--border2);border-radius:8px;
+  background:var(--bg3);cursor:pointer;transition:border-color .2s,background .2s;overflow:hidden;
+}
+.img-upload-area:hover,.img-upload-area.drag-over{border-color:var(--blue);background:rgba(61,124,255,0.04)}
+.img-upload-area.has-img{border-style:solid;border-color:var(--border2);cursor:default}
+.img-upload-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:22px;min-height:90px}
+.img-upload-inner.hidden{display:none}
+.upload-icon{width:28px;height:28px;border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.upload-icon svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:1.5}
+.upload-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
+.upload-text span{color:var(--blue)}
+.upload-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim)}
+.img-preview{width:100%;height:140px;object-fit:cover;display:none;border-radius:7px}
+.img-preview.show{display:block}
+.img-preview-actions{display:none;position:absolute;top:8px;right:8px;gap:6px}
+.img-preview-actions.show{display:flex}
+.img-action-btn{padding:4px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.3px;border:1px solid;transition:background .15s}
+.img-change-btn{background:rgba(5,5,5,0.85);border-color:var(--border2);color:#aaa}
+.img-change-btn:hover{border-color:var(--blue);color:var(--blue)}
+.img-remove-btn{background:rgba(5,5,5,0.85);border-color:#2a1212;color:#FF4444}
+.img-remove-btn:hover{background:#1a0808}
+#fileInput{display:none}
+.or-divider{display:flex;align-items:center;gap:10px;margin:10px 0}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border2)}
+.or-divider span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:.5px}
+/* DELETE BUTTON */
+.del-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;background:transparent;border:1px solid #2a1212;border-radius:6px;color:#FF4444;font-size:10px;font-weight:600;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:background .15s,border-color .15s}
+.del-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+.del-btn:hover{background:#1f0808;border-color:#441818}
+.del-btn.confirming{background:#2a0808;border-color:#FF4444;color:#ff7777}
+.saved-thumb{width:52px;height:40px;border-radius:5px;background:var(--bg3);border:1px solid var(--border2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.saved-thumb img{width:100%;height:100%;object-fit:cover}
+.saved-thumb-placeholder{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--dim);text-align:center}
+@keyframes row-out{0%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(20px)}}
+.row-deleting{animation:row-out .25s ease forwards}
+
 @media(max-width:700px){
   nav,.hero,.section{padding-left:18px;padding-right:18px}
   .hero-title{font-size:36px}
@@ -450,10 +488,27 @@ nav{
         <textarea class="form-textarea" id="newDesc" placeholder="Describe what the UI does, its design system, components, and any technical details..."></textarea>
       </div>
       <div class="form-full">
-        <label class="form-label">Thumbnail (rbxassetid://)</label>
-        <input class="form-input" id="newAsset" placeholder="rbxassetid://000000000" style="font-family:'JetBrains Mono',monospace"/>
+        <label class="form-label">Project Thumbnail</label>
+        <div class="img-upload-area" id="uploadArea" onclick="triggerFileInput()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <img class="img-preview" id="imgPreview" src="" alt="preview"/>
+          <div class="img-preview-actions" id="previewActions">
+            <button class="img-action-btn img-change-btn" onclick="event.stopPropagation();triggerFileInput()">Change</button>
+            <button class="img-action-btn img-remove-btn" onclick="event.stopPropagation();clearImage()">Remove</button>
+          </div>
+          <div class="img-upload-inner" id="uploadInner">
+            <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+            <div class="upload-text"><span>Click to upload</span> or drag &amp; drop</div>
+            <div class="upload-sub">PNG, JPG, GIF, WEBP</div>
+          </div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)"/>
       </div>
-      <div style="display:flex;align-items:center;margin-top:4px">
+      <div class="or-divider"><span>OR USE ASSET ID</span></div>
+      <div class="form-full" style="margin-bottom:0">
+        <label class="form-label">Thumbnail (rbxassetid://)</label>
+        <input class="form-input" id="newAsset" placeholder="rbxassetid://000000000" style="font-family:'JetBrains Mono',monospace" oninput="if(this.value.trim())clearImage()"/>
+      </div>
+      <div style="display:flex;align-items:center;margin-top:14px">
         <button class="save-btn" onclick="addProject()">+ SAVE PROJECT</button>
         <span class="save-note">Persists via DataStoreService</span>
       </div>
@@ -469,14 +524,16 @@ nav{
 <script>
 const CREDS = {u:'omxrr', p:'whitechoc'};
 let projects = [];
+let currentImageData = '';
+let confirmingDelete = null;
 
+/* ── LOGIN ── */
 function closeLogin() {
   document.getElementById('loginOverlay').classList.remove('show');
   document.getElementById('errMsg').style.display = 'none';
   document.getElementById('uInput').value = '';
   document.getElementById('pInput').value = '';
 }
-
 function doLogin() {
   const u = document.getElementById('uInput').value.trim();
   const p = document.getElementById('pInput').value.trim();
@@ -485,29 +542,56 @@ function doLogin() {
   if (u === CREDS.u && p === CREDS.p) {
     err.style.display = 'none';
     modal.style.borderColor = '#A2FF00';
-    setTimeout(() => {
-      modal.style.borderColor = '';
-      closeLogin();
-      openAdmin();
-    }, 380);
+    setTimeout(() => { modal.style.borderColor = ''; closeLogin(); openAdmin(); }, 380);
   } else {
     err.style.display = 'block';
-    modal.classList.remove('shake');
-    void modal.offsetWidth;
-    modal.classList.add('shake');
+    modal.classList.remove('shake'); void modal.offsetWidth; modal.classList.add('shake');
     setTimeout(() => modal.classList.remove('shake'), 400);
   }
 }
+function openAdmin() { document.getElementById('adminDash').classList.add('show'); refreshDash(); }
+function exitAdmin() { document.getElementById('adminDash').classList.remove('show'); }
 
-function openAdmin() {
-  document.getElementById('adminDash').classList.add('show');
-  refreshDash();
+/* ── IMAGE UPLOAD ── */
+function triggerFileInput() { document.getElementById('fileInput').click(); }
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  loadImageFile(file);
+  e.target.value = '';
+}
+function loadImageFile(file) {
+  if (!file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = (e) => { setPreviewImage(e.target.result); document.getElementById('newAsset').value = ''; };
+  reader.readAsDataURL(file);
+}
+function setPreviewImage(src) {
+  currentImageData = src;
+  document.getElementById('imgPreview').src = src;
+  document.getElementById('imgPreview').classList.add('show');
+  document.getElementById('previewActions').classList.add('show');
+  document.getElementById('uploadInner').classList.add('hidden');
+  document.getElementById('uploadArea').classList.add('has-img');
+}
+function clearImage() {
+  currentImageData = '';
+  document.getElementById('imgPreview').src = '';
+  document.getElementById('imgPreview').classList.remove('show');
+  document.getElementById('previewActions').classList.remove('show');
+  document.getElementById('uploadInner').classList.remove('hidden');
+  document.getElementById('uploadArea').classList.remove('has-img', 'drag-over');
+}
+function handleDragOver(e) { e.preventDefault(); document.getElementById('uploadArea').classList.add('drag-over'); }
+function handleDragLeave() { document.getElementById('uploadArea').classList.remove('drag-over'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadArea').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) loadImageFile(file);
 }
 
-function exitAdmin() {
-  document.getElementById('adminDash').classList.remove('show');
-}
-
+/* ── ADD PROJECT ── */
 function addProject() {
   const name  = document.getElementById('newName').value.trim();
   const tag   = document.getElementById('newTag').value;
@@ -519,20 +603,36 @@ function addProject() {
     setTimeout(() => { btn.style.background = ''; btn.style.color = ''; }, 500);
     return;
   }
-  projects.push({ id: Date.now().toString(), name, tag, desc, assetId: asset || '' });
+  const thumb = currentImageData || asset || '';
+  projects.push({ id: Date.now().toString(), name, tag, desc, thumb });
   document.getElementById('newName').value = '';
   document.getElementById('newDesc').value = '';
   document.getElementById('newAsset').value = '';
+  clearImage();
   refreshDash();
   renderGrid();
 }
 
+/* ── DELETE PROJECT ── */
 function deleteProject(id) {
-  projects = projects.filter(p => p.id !== id);
-  refreshDash();
-  renderGrid();
+  if (confirmingDelete !== id) {
+    confirmingDelete = id;
+    const btn = document.querySelector(`.del-btn[data-id="${id}"]`);
+    if (btn) { btn.classList.add('confirming'); btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg> Confirm?`; }
+    setTimeout(() => { if (confirmingDelete === id) { confirmingDelete = null; refreshDash(); } }, 3000);
+    return;
+  }
+  confirmingDelete = null;
+  const row = document.querySelector(`.saved-row[data-row-id="${id}"]`);
+  if (row) {
+    row.classList.add('row-deleting');
+    setTimeout(() => { projects = projects.filter(p => p.id !== id); refreshDash(); renderGrid(); }, 250);
+  } else {
+    projects = projects.filter(p => p.id !== id); refreshDash(); renderGrid();
+  }
 }
 
+/* ── REFRESH DASH ── */
 function refreshDash() {
   document.getElementById('dashCount').textContent = projects.length;
   const list = document.getElementById('savedList');
@@ -545,20 +645,31 @@ function refreshDash() {
     projects.forEach(p => {
       const row = document.createElement('div');
       row.className = 'saved-row';
+      row.setAttribute('data-row-id', p.id);
+      row.style.cssText = 'display:flex;align-items:center;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;';
+      const thumbHtml = p.thumb
+        ? `<img src="${p.thumb}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"/>`
+        : `<span class="saved-thumb-placeholder">no img</span>`;
+      const isConfirming = confirmingDelete === p.id;
+      const delLabel = isConfirming
+        ? `<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg> Confirm?`
+        : `<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg> Delete`;
       row.innerHTML = `
-        <div class="saved-info">
+        <div class="saved-thumb">${thumbHtml}</div>
+        <div class="saved-info" style="flex:1;display:flex;flex-direction:column;gap:3px;min-width:0">
           <div class="saved-name">${p.name}</div>
-          <div class="saved-meta">${p.tag} · ${p.assetId || 'no thumbnail'}</div>
+          <div class="saved-meta">${p.tag} · ${p.thumb ? (p.thumb.startsWith('data:') ? 'local file' : p.thumb) : 'no thumbnail'}</div>
         </div>
-        <div class="saved-right">
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
           <span class="tag tag-${p.tag}">${p.tag}</span>
-          <button class="rm-btn" onclick="deleteProject('${p.id}')">remove</button>
+          <button class="del-btn ${isConfirming ? 'confirming' : ''}" data-id="${p.id}" onclick="deleteProject('${p.id}')">${delLabel}</button>
         </div>`;
       list.appendChild(row);
     });
   }
 }
 
+/* ── RENDER GRID ── */
 function renderGrid() {
   const container = document.getElementById('projContainer');
   document.getElementById('projCount').textContent = projects.length;
@@ -580,7 +691,7 @@ function renderGrid() {
     card.style.opacity = '0';
     card.style.transform = 'translateY(14px)';
     card.innerHTML = `
-      ${p.assetId ? `<div class="proj-thumb"><img src="${p.assetId}" onerror="this.parentNode.innerHTML='<span class=proj-thumb-empty>preview unavailable</span>'"/></div>` : ''}
+      ${p.thumb ? `<div class="proj-thumb"><img src="${p.thumb}" onerror="this.parentNode.style.display='none'"/></div>` : ''}
       <div class="proj-card-top">
         <span class="proj-num">${n}</span>
         <span class="tag tag-${p.tag}">${p.tag}</span>
