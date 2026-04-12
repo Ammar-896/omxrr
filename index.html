@@ -515,9 +515,18 @@ nav{
 
 <script>
 const CREDS = {u:'omxrr', p:'whitechoc'};
+const STORE_KEY = 'omxrr_portfolio_v1';
 let projects = [];
 let currentImageData = '';
 let confirmingDelete = null;
+
+/* ── PERSISTENCE ── */
+function saveToStorage() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(projects)); } catch(e) {}
+}
+function loadFromStorage() {
+  try { const d = localStorage.getItem(STORE_KEY); if (d) projects = JSON.parse(d); } catch(e) {}
+}
 
 /* ── LOGIN ── */
 function closeLogin() {
@@ -597,6 +606,7 @@ function addProject() {
   }
   const thumb = currentImageData || asset || '';
   projects.push({ id: Date.now().toString(), name, tag, desc, thumb });
+  saveToStorage();
   document.getElementById('newName').value = '';
   document.getElementById('newDesc').value = '';
   document.getElementById('newAsset').value = '';
@@ -618,9 +628,9 @@ function deleteProject(id) {
   const row = document.querySelector(`.saved-row[data-row-id="${id}"]`);
   if (row) {
     row.classList.add('row-deleting');
-    setTimeout(() => { projects = projects.filter(p => p.id !== id); refreshDash(); renderGrid(); }, 250);
+    setTimeout(() => { projects = projects.filter(p => p.id !== id); saveToStorage(); refreshDash(); renderGrid(); }, 250);
   } else {
-    projects = projects.filter(p => p.id !== id); refreshDash(); renderGrid();
+    projects = projects.filter(p => p.id !== id); saveToStorage(); refreshDash(); renderGrid();
   }
 }
 
@@ -704,6 +714,10 @@ function renderGrid() {
   container.innerHTML = '';
   container.appendChild(grid);
 }
+
+/* ── INIT: load persisted projects ── */
+loadFromStorage();
+renderGrid();
 
 document.getElementById('pInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('uInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('pInput').focus(); });
