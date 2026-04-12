@@ -519,11 +519,14 @@ const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 async function saveProjects() {
   try {
-    await fetch(BIN_URL, {
+    const res = await fetch(BIN_URL, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY, 'X-Bin-Versioning': 'false' },
       body: JSON.stringify(projects)
     });
+    const data = await res.json();
+    console.log('Save result:', res.status, data);
+    if (!res.ok) console.error('Save error:', data);
   } catch(e) { console.error('Save failed:', e); }
 }
 async function loadProjects() {
