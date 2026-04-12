@@ -522,10 +522,9 @@ async function saveProjects() {
     const res = await fetch(BIN_URL, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY, 'X-Bin-Versioning': 'false' },
-      body: JSON.stringify(projects)
+      body: JSON.stringify({ projects: projects })
     });
     const data = await res.json();
-    console.log('Save result:', res.status, data);
     if (!res.ok) console.error('Save error:', data);
   } catch(e) { console.error('Save failed:', e); }
 }
@@ -535,7 +534,9 @@ async function loadProjects() {
       const res = await fetch(`${BIN_URL}/latest`, { headers: { 'X-Master-Key': API_KEY } });
       if (!res.ok) throw new Error('bad response');
       const data = await res.json();
-      projects = Array.isArray(data.record) ? data.record.filter(p => p && typeof p === 'object' && p.name) : [];
+      const rec = data.record;
+    const arr = rec && Array.isArray(rec.projects) ? rec.projects : (Array.isArray(rec) ? rec : []);
+    projects = arr.filter(p => p && typeof p === 'object' && p.name);
       renderGrid();
       return;
     } catch(e) {
