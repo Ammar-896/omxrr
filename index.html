@@ -84,6 +84,7 @@ nav{
   animation:blink 2s ease-in-out infinite;
 }
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .hero-title{
   font-size:clamp(40px,6vw,72px);
   font-weight:800;line-height:1.0;
@@ -202,6 +203,14 @@ nav{
 .proj-thumb img{width:100%;height:100%;object-fit:cover}
 .proj-thumb-empty{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim)}
 
+/* LIGHTBOX */
+.lightbox{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.lightbox.show{display:flex}
+.lightbox-img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:8px;border:1px solid var(--border2);box-shadow:0 0 60px rgba(0,0,0,0.8)}
+.lightbox-close{position:fixed;top:20px;right:24px;background:none;border:none;color:#888;font-size:28px;cursor:pointer;line-height:1;transition:color .2s}
+.lightbox-close:hover{color:#fff}
+.lightbox-name{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.5px}
+
 /* LOGIN */
 .overlay{
   display:none;position:fixed;inset:0;z-index:200;
@@ -310,110 +319,33 @@ nav{
 .rm-btn:hover{background:#1a0808}
 .no-saved{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);text-align:center;padding:20px 0}
 
-/* MULTI IMAGE UPLOAD */
-.img-multi-zone{
-  border:1px dashed var(--border2);border-radius:8px;
-  background:var(--bg3);padding:12px;
-  transition:border-color .2s,background .2s;
+/* IMAGE UPLOAD */
+.img-upload-area{
+  position:relative;width:100%;border:1px dashed var(--border2);border-radius:8px;
+  background:var(--bg3);cursor:pointer;transition:border-color .2s,background .2s;overflow:hidden;
 }
-.img-multi-zone.drag-over{border-color:var(--blue);background:rgba(61,124,255,0.04);border-style:solid}
-.img-strip{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
-.img-strip-item{
-  position:relative;width:82px;height:62px;border-radius:6px;
-  overflow:hidden;border:1px solid var(--border2);flex-shrink:0;
-  background:var(--bg2);
-}
-.img-strip-item img{width:100%;height:100%;object-fit:cover;display:block}
-.img-strip-item-overlay{
-  position:absolute;inset:0;background:rgba(0,0,0,0);
-  transition:background .15s;pointer-events:none;
-}
-.img-strip-item:hover .img-strip-item-overlay{background:rgba(0,0,0,0.4)}
-.img-strip-remove{
-  position:absolute;top:4px;right:4px;
-  width:17px;height:17px;border-radius:3px;
-  background:rgba(0,0,0,0.82);border:1px solid #441818;
-  color:#FF4444;font-size:10px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;transition:opacity .15s;
-  font-family:'JetBrains Mono',monospace;line-height:1;
-}
-.img-strip-item:hover .img-strip-remove{opacity:1}
-.img-strip-num{
-  position:absolute;bottom:3px;left:4px;
-  background:rgba(0,0,0,0.65);color:#999;
-  font-family:'JetBrains Mono',monospace;font-size:8px;
-  padding:1px 4px;border-radius:2px;pointer-events:none;
-}
-.img-add-tile{
-  width:82px;height:62px;border-radius:6px;
-  border:1px dashed var(--border2);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  cursor:pointer;transition:border-color .2s,background .2s;
-  background:transparent;flex-shrink:0;
-}
-.img-add-tile:hover{border-color:var(--blue);background:rgba(61,124,255,0.05)}
-.img-add-tile svg{width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:1.5}
-.img-add-tile span{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)}
-.img-drop-hint{
-  font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim);
-  text-align:center;margin-top:9px;letter-spacing:.3px;
-}
-.img-count-badge{
-  font-family:'JetBrains Mono',monospace;font-size:9px;
-  color:var(--blue);background:rgba(61,124,255,0.1);
-  border:1px solid rgba(61,124,255,0.2);border-radius:3px;
-  padding:1px 6px;margin-left:6px;
-}
+.img-upload-area:hover,.img-upload-area.drag-over{border-color:var(--blue);background:rgba(61,124,255,0.04)}
+.img-upload-area.has-img{border-style:solid;border-color:var(--border2);cursor:default}
+.img-upload-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:22px;min-height:90px}
+.img-upload-inner.hidden{display:none}
+.upload-icon{width:28px;height:28px;border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.upload-icon svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:1.5}
+.upload-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
+.upload-text span{color:var(--blue)}
+.upload-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim)}
+.img-preview{width:100%;height:140px;object-fit:cover;display:none;border-radius:7px}
+.img-preview.show{display:block}
+.img-preview-actions{display:none;position:absolute;top:8px;right:8px;gap:6px}
+.img-preview-actions.show{display:flex}
+.img-action-btn{padding:4px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.3px;border:1px solid;transition:background .15s}
+.img-change-btn{background:rgba(5,5,5,0.85);border-color:var(--border2);color:#aaa}
+.img-change-btn:hover{border-color:var(--blue);color:var(--blue)}
+.img-remove-btn{background:rgba(5,5,5,0.85);border-color:#2a1212;color:#FF4444}
+.img-remove-btn:hover{background:#1a0808}
 #fileInput{display:none}
 .or-divider{display:flex;align-items:center;gap:10px;margin:10px 0}
 .or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border2)}
 .or-divider span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:.5px}
-.asset-row{display:flex;gap:8px}
-.asset-add-btn{
-  padding:9px 16px;background:var(--bg2);border:1px solid var(--border2);
-  border-radius:6px;color:#888;font-size:10px;font-weight:700;cursor:pointer;
-  font-family:'JetBrains Mono',monospace;letter-spacing:.5px;
-  transition:border-color .2s,color .2s;white-space:nowrap;flex-shrink:0;
-}
-.asset-add-btn:hover{border-color:var(--blue);color:var(--blue)}
-
-/* CARD IMAGE CAROUSEL */
-.proj-carousel{
-  position:relative;width:100%;height:110px;
-  background:var(--bg3);border-radius:5px;margin-bottom:14px;
-  overflow:hidden;border:1px solid var(--border);z-index:1;
-}
-.proj-carousel-track{
-  display:flex;height:100%;
-  transition:transform .3s cubic-bezier(0.4,0,0.2,1);
-  will-change:transform;
-}
-.proj-carousel-track img{
-  width:100%;height:100%;object-fit:cover;flex-shrink:0;
-}
-.proj-carousel-btn{
-  position:absolute;top:50%;transform:translateY(-50%);
-  background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.08);
-  border-radius:4px;color:#ccc;width:22px;height:22px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;opacity:0;transition:opacity .2s,background .15s;
-  z-index:2;font-size:12px;line-height:1;
-}
-.proj-carousel:hover .proj-carousel-btn{opacity:1}
-.proj-carousel-btn:hover{background:rgba(0,0,0,0.9);color:#fff}
-.proj-carousel-prev{left:6px}
-.proj-carousel-next{right:6px}
-.proj-carousel-dots{
-  position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
-  display:flex;gap:4px;z-index:2;
-}
-.c-dot{
-  width:4px;height:4px;border-radius:50%;
-  background:rgba(255,255,255,0.28);transition:background .2s;
-  cursor:pointer;
-}
-.c-dot.active{background:#fff}
 /* DELETE BUTTON */
 .del-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;background:transparent;border:1px solid #2a1212;border-radius:6px;color:#FF4444;font-size:10px;font-weight:600;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:background .15s,border-color .15s}
 .del-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
@@ -482,16 +414,15 @@ nav{
 
   <div class="section">
     <div class="sec-label">PROJECTS &nbsp;<span class="sec-count" id="totalLabel">0 total</span></div>
-    <div id="projContainer">
-      <div class="empty-state">
-        <div class="empty-icon">
-          <svg viewBox="0 0 24 24"><path d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        </div>
-        <div class="empty-title">No projects yet</div>
-        <div class="empty-sub">Projects will appear here once added</div>
-      </div>
-    </div>
+    <div id="projContainer"><div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" style="animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="var(--muted)" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div><div class="empty-title" style="color:#333">Loading...</div></div></div>
   </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt=""/>
+  <div class="lightbox-name" id="lightboxName"></div>
 </div>
 
 <!-- LOGIN OVERLAY -->
@@ -557,25 +488,25 @@ nav{
         <textarea class="form-textarea" id="newDesc" placeholder="Describe what the UI does, its design system, components, and any technical details..."></textarea>
       </div>
       <div class="form-full">
-        <label class="form-label">Project Images <span class="img-count-badge" id="imgCountBadge">0 added</span></label>
-        <div class="img-multi-zone" id="uploadArea" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-          <div class="img-strip" id="imgStrip">
-            <div class="img-add-tile" onclick="triggerFileInput()">
-              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span>Add Image</span>
-            </div>
+        <label class="form-label">Project Thumbnail</label>
+        <div class="img-upload-area" id="uploadArea" onclick="triggerFileInput()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <img class="img-preview" id="imgPreview" src="" alt="preview"/>
+          <div class="img-preview-actions" id="previewActions">
+            <button class="img-action-btn img-change-btn" onclick="event.stopPropagation();triggerFileInput()">Change</button>
+            <button class="img-action-btn img-remove-btn" onclick="event.stopPropagation();clearImage()">Remove</button>
           </div>
-          <div class="img-drop-hint">or drop images anywhere here · PNG, JPG, GIF, WEBP</div>
+          <div class="img-upload-inner" id="uploadInner">
+            <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+            <div class="upload-text"><span>Click to upload</span> or drag &amp; drop</div>
+            <div class="upload-sub">PNG, JPG, GIF, WEBP</div>
+          </div>
         </div>
-        <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFileSelect(event)"/>
+        <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)"/>
       </div>
       <div class="or-divider"><span>OR USE ASSET ID</span></div>
       <div class="form-full" style="margin-bottom:0">
-        <label class="form-label">Add Image via Asset ID (rbxassetid://)</label>
-        <div class="asset-row">
-          <input class="form-input" id="newAsset" placeholder="rbxassetid://000000000" style="font-family:'JetBrains Mono',monospace;flex:1"/>
-          <button class="asset-add-btn" onclick="addAssetIdImage()">+ Add →</button>
-        </div>
+        <label class="form-label">Thumbnail (rbxassetid://)</label>
+        <input class="form-input" id="newAsset" placeholder="rbxassetid://000000000" style="font-family:'JetBrains Mono',monospace" oninput="if(this.value.trim())clearImage()"/>
       </div>
       <div style="display:flex;align-items:center;margin-top:14px">
         <button class="save-btn" onclick="addProject()">+ SAVE PROJECT</button>
@@ -595,6 +526,57 @@ const CREDS = {u:'omxrr', p:'whitechoc'};
 let projects = [];
 let currentImageData = '';
 let confirmingDelete = null;
+
+/* ── JSONBIN STORAGE ── */
+const BIN_ID = '69db5362aaba882197ed7895';
+const API_KEY = '$2a$10$.GuCzu/wFVoUaM/7RRX1CehJ57wPYpyvta1tpzeT1IFCepqsAOLTW';
+const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+async function saveProjects() {
+  try {
+    const res = await fetch(BIN_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY, 'X-Bin-Versioning': 'false' },
+      body: JSON.stringify({ projects: projects })
+    });
+    const data = await res.json();
+    if (!res.ok) console.error('Save error:', data);
+  } catch(e) { console.error('Save failed:', e); }
+}
+async function loadProjects() {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch(`${BIN_URL}/latest`, { headers: { 'X-Master-Key': API_KEY } });
+      if (!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      const rec = data.record;
+    const arr = rec && Array.isArray(rec.projects) ? rec.projects : (Array.isArray(rec) ? rec : []);
+    projects = arr.filter(p => p && typeof p === 'object' && p.name);
+      renderGrid();
+      return;
+    } catch(e) {
+      if (attempt === 2) { projects = []; renderGrid(); }
+      else await new Promise(r => setTimeout(r, 800));
+    }
+  }
+}
+loadProjects();
+
+/* ── LIGHTBOX ── */
+function openLightbox(i) {
+  const p = projects[i];
+  if (!p || !p.thumb) return;
+  document.getElementById('lightboxImg').src = p.thumb;
+  document.getElementById('lightboxName').textContent = p.name;
+  document.getElementById('lightbox').classList.add('show');
+  document.addEventListener('keydown', lightboxKey);
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('show');
+  document.getElementById('lightboxImg').src = '';
+  document.removeEventListener('keydown', lightboxKey);
+}
+function lightboxKey(e) { if (e.key === 'Escape') closeLightbox(); }
 
 /* ── LOGIN ── */
 function closeLogin() {
@@ -632,7 +614,22 @@ function handleFileSelect(e) {
 function loadImageFile(file) {
   if (!file.type.startsWith('image/')) return;
   const reader = new FileReader();
-  reader.onload = (e) => { setPreviewImage(e.target.result); document.getElementById('newAsset').value = ''; };
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 400;
+      let w = img.width, h = img.height;
+      if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      else if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.7);
+      setPreviewImage(compressed);
+      document.getElementById('newAsset').value = '';
+    };
+    img.src = e.target.result;
+  };
   reader.readAsDataURL(file);
 }
 function setPreviewImage(src) {
@@ -666,7 +663,7 @@ function addProject() {
   const tag   = document.getElementById('newTag').value;
   const desc  = document.getElementById('newDesc').value.trim();
   const asset = document.getElementById('newAsset').value.trim();
-  if (!name || !desc) {
+  if (!name) {
     const btn = document.querySelector('.save-btn');
     btn.style.background = '#FF4444'; btn.style.color = '#fff';
     setTimeout(() => { btn.style.background = ''; btn.style.color = ''; }, 500);
@@ -678,12 +675,13 @@ function addProject() {
   document.getElementById('newDesc').value = '';
   document.getElementById('newAsset').value = '';
   clearImage();
+  saveProjects();
   refreshDash();
   renderGrid();
 }
 
 /* ── DELETE PROJECT ── */
-function deleteProject(id) {
+async function deleteProject(id) {
   if (confirmingDelete !== id) {
     confirmingDelete = id;
     const btn = document.querySelector(`.del-btn[data-id="${id}"]`);
@@ -692,12 +690,14 @@ function deleteProject(id) {
     return;
   }
   confirmingDelete = null;
+  projects = projects.filter(p => p.id !== id);
+  await saveProjects();
   const row = document.querySelector(`.saved-row[data-row-id="${id}"]`);
   if (row) {
     row.classList.add('row-deleting');
-    setTimeout(() => { projects = projects.filter(p => p.id !== id); refreshDash(); renderGrid(); }, 250);
+    setTimeout(() => { refreshDash(); renderGrid(); }, 250);
   } else {
-    projects = projects.filter(p => p.id !== id); refreshDash(); renderGrid();
+    refreshDash(); renderGrid();
   }
 }
 
@@ -768,8 +768,8 @@ function renderGrid() {
       <div class="proj-name">${p.name}</div>
       <div class="proj-desc">${p.desc}</div>
       <div class="proj-footer">
-        <span class="lang-pill"><span class="ldot"></span><span class="lang-txt">Luau · UI</span></span>
-        <span class="view-src">View source →</span>
+        <span class="lang-pill"><span class="ldot"></span><span class="lang-txt">UI · UX</span></span>
+        <span class="view-src" onclick="openLightbox(${i})">View source →</span>
       </div>`;
     grid.appendChild(card);
     setTimeout(() => {
